@@ -1,15 +1,16 @@
 import json
-from ragas.messages import HumanMessage, AIMessage
+import typing as t
+
+from ragas.messages import AIMessage, HumanMessage
 
 
-def get_last_orchestration_value(traces, key):
+def get_last_orchestration_value(traces: t.List[t.Dict[str, t.Any]], key: str):
     """
     Iterates through the traces to find the last occurrence of a specified key
     within the orchestrationTrace.
 
     Returns:
-        (index, value): Tuple where index is the last index at which the key was found,
-                        and value is the corresponding value, or (None, None) if not found.
+        (index, value): Tuple where index is the last index at which the key was found, and value is the corresponding value, or (None, None) if not found.
     """
     last_index = -1
     last_value = None
@@ -41,7 +42,7 @@ def extract_messages_from_model_invocation(model_inv):
     return messages[:-1]
 
 
-def convert_to_ragas_messages(traces):
+def convert_to_ragas_messages(traces: t.List):
     """
     Converts a list of trace dictionaries into a list of messages.
     It extracts messages from the last modelInvocationInput and appends
@@ -70,12 +71,12 @@ def convert_to_ragas_messages(traces):
     return result
 
 
-def extract_kb_call_trace(logs):
+def extract_kb_trace(traces):
     """
-    Extracts groups of logs that follow the specific order:
+    Extracts groups of traces that follow the specific order:
       1. An element with 'trace' -> 'orchestrationTrace' containing an 'invocationInput'
          with invocationType == "KNOWLEDGE_BASE"
-      2. Followed (later in the list or within the same log) by an element with an 'observation'
+      2. Followed (later in the list or within the same trace) by an element with an 'observation'
          that contains 'knowledgeBaseLookupOutput'
       3. Followed by an element with an 'observation' that contains 'finalResponse'
 
@@ -87,8 +88,8 @@ def extract_kb_call_trace(logs):
     results = []
     groups_in_progress = []  # list to keep track of groups in progress
 
-    for log in logs:
-        orchestration = log.get("trace", {}).get("orchestrationTrace", {})
+    for trace in traces:
+        orchestration = trace.get("trace", {}).get("orchestrationTrace", {})
 
         # 1. Look for a KB invocation input.
         inv_input = orchestration.get("invocationInput")
