@@ -59,13 +59,12 @@ class AsyncExecutor:
     desc: str = "Evaluating"
     show_progress: bool = True
     raise_exceptions: bool = False
-    max_calls_per_minute: int = 5
+    max_calls_per_minute: int = 1250
     jobs: List[Tuple[Callable[..., Any], tuple, dict, int]] = field(
         default_factory=list, repr=False
     )
     job_counter: int = 0
     rate_limiter: RateLimiter = field(init=False)
-    print("hi")
 
     def __post_init__(self):
         self.rate_limiter = RateLimiter(self.max_calls_per_minute)
